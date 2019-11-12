@@ -1,0 +1,1 @@
+0,Vampiric Stab#other,hp,-,wep,-1%self,hp,+,1d3,-1

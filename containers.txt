@@ -1,0 +1,5 @@
+0,Error Chest,1#0,1
+1,Player Inventory,5#2,100%5,1
+2,Player Equipment,3#7,1%8,1
+3,Skeleton Inventory,5#1,23%7,1
+4,Skeleton Equipment,3#8,1

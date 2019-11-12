@@ -1,0 +1,11 @@
+item,0,ERROR,The bad item. You should not have this item.,0
+item,1,Copper Piece,The lowest form of common currency.,1
+item,2,Silver Piece,The most commonly used currency.,10
+item,3,Gold Piece,The highest form of currency most could hope to own.,100
+item,4,Platinum Piece,The power of kings compressed into disc form.,1000
+wep,5,Dagger,A plain iron dagger.,25,1d4,1
+wep,6,Dual Daggers,Two gleaming points.,35,2d3,0
+wep,7,Longsword,Standard adventuring gear.,50,1d8,0
+arm,8,Leather Armor,Treated leather plates. Somewhat flexible.,50,1
+arm,9,Chainmail,Interlinked chains protect against threats.,150,2
+arm,10,Plate Mail,BIG,300,3
