@@ -6,6 +6,7 @@
 #include "ObjectTracker.h"
 #include "Character.h"
 #include "Ability.h"
+#include "Map.h";
 
 int main()
 {
