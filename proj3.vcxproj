@@ -156,8 +156,10 @@
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Die.cpp" />
     <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Map.cpp" />
     <ClCompile Include="ObjectTracker.cpp" />
     <ClCompile Include="proj3.cpp" />
+    <ClCompile Include="Room.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,7 +174,9 @@
     <ClInclude Include="Container.h" />
     <ClInclude Include="Die.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="Map.h" />
     <ClInclude Include="ObjectTracker.h" />
+    <ClInclude Include="Room.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
