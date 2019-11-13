@@ -17,5 +17,20 @@ int main()
 	o.readAbilities("abilities.txt");
 	o.readCharacters("characters.txt");
 
-	std::cout << "test change 2" << std::endl;
+	run();
+}
+
+void run() {
+	//select character
+	//exploration loop
+	//fight
+}
+
+void fight(Character* player, Character* enemy) {
+	/*
+	Needs:
+	Countdown for turns
+	Menu
+	Result of chosen action
+	*/
 }
