@@ -6,6 +6,7 @@
 #include "ObjectTracker.h"
 #include "Character.h"
 #include "Ability.h"
+#include "Map.h"
 
 int main()
 {
@@ -16,6 +17,4 @@ int main()
 	o.readContainers("containers.txt");
 	o.readAbilities("abilities.txt");
 	o.readCharacters("characters.txt");
-
-	std::cout << "test change 2" << std::endl;
 }
