@@ -17,5 +17,5 @@ int main()
 	o.readAbilities("abilities.txt");
 	o.readCharacters("characters.txt");
 
-	std::cout << "This is a test change." << std::endl;
+	std::cout << "test change 2" << std::endl;
 }
