@@ -25,7 +25,7 @@ public:
 	Item* viewItem(int index);
 	Item* removeItem(int id);
 
-	int numItems_() { return contained.size(); };
+	int numItems_() { return (int)contained.size(); };
 
 	bool moveItemTo(int itemid, Container* newContainer);
 

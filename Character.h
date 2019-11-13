@@ -41,7 +41,7 @@ public:
 	int equip(int itemid);
 	int unequip(int itemid);
 
-	int changeStat(std::string stat, int amount);
+	std::vector<std::string> changeStat(std::string stat, int amount);
 
 	Character instance() { return *this; };
 };

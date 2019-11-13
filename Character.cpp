@@ -94,10 +94,12 @@ int Character::unequip(int itemid)
 	}
 }
 
-int Character::changeStat(std::string stat, int amount)
+std::vector<std::string> Character::changeStat(std::string stat, int amount)
 {
 	int initStat;
 	int finalStat;
+	std::vector<std::string> changeToken;
+	changeToken.push_back(stat);
 
 	if (stat == "hp") {
 		initStat = hp;
@@ -138,7 +140,9 @@ int Character::changeStat(std::string stat, int amount)
 		finalStat = ac;
 	}
 	else {
-		return 0;
+		changeToken.push_back(std::to_string(0));
+		return changeToken;
 	}
-	return finalStat-initStat;
+	changeToken.push_back(std::to_string(finalStat - initStat));
+	return changeToken;
 }

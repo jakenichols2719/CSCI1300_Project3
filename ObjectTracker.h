@@ -23,15 +23,15 @@ public:
 
 	void readItems(std::string fileName);
 	Item* getItem(int id);
-	int getNumItems() { return items.size(); };
+	int getNumItems() { return (int)items.size(); };
 
 	void readContainers(std::string fileName);
 	Container* getContainer(int id);
-	int getNumContainers() { return containers.size(); };
+	int getNumContainers() { return (int)containers.size(); };
 
 	void readAbilities(std::string fileName);
 	Ability* getAbility(int id);
-	int getNumAbilities() { return abilities.size(); };
+	int getNumAbilities() { return (int)abilities.size(); };
 
 	void readCharacters(std::string fileName);
 	Character* getCharacter(int id);

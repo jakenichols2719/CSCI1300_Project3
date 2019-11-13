@@ -25,8 +25,9 @@ bool Ability::addEffect(std::string _target, std::string _targetstat, char _dire
 	return true;
 }
 
-void Ability::useAbility(Character* active, Character* other)
+std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Character* other)
 {
+	std::vector<std::vector<std::string>> changeTokens; //list of change tokens for each stat change
 	std::cout << active->name_() + " used " + name + "!" << std::endl;
 
 	if (rollHit) {
@@ -34,13 +35,17 @@ void Ability::useAbility(Character* active, Character* other)
 		if (roll < other->ac_()) {
 			std::cout << "It missed." << std::endl;
 			std::cout << util::divider() << std::endl;
-			return;
+			return changeTokens;
 		}
 	}
 
+	//mp cost
+
 	for (unsigned n = 0; n < targets.size(); n++) {
+		std::vector<std::string> changeToken;// individual change token
 		Character* toTarget;
 		std::string printEffect = "";
+		//set effect change target
 		if (targets.at(n) == "self") {
 			toTarget = active;
 			printEffect += "You ";
@@ -54,9 +59,12 @@ void Ability::useAbility(Character* active, Character* other)
 			printEffect += other->name_() + " ";
 		}
 
+		//set stat to change
 		std::string statToChange = stats.at(n);
+
 		Die changeDie;
 		int changeAmount;
+		//set change amount
 		if (amounts.at(n) == "wep") {
 			Item* activeWep = active->equippedWeapon_();
 			int bonus = 0;
@@ -74,6 +82,7 @@ void Ability::useAbility(Character* active, Character* other)
 			changeAmount = changeDie.roll(0);
 		}
 
+		//set direction
 		if (directions.at(n) == '-') {
 			changeAmount -= 2 * changeAmount;
 			printEffect += "lost ";
@@ -85,9 +94,13 @@ void Ability::useAbility(Character* active, Character* other)
 
 		std::cout << printEffect << std::endl;
 		//change stat: will eventually need reworking to factor in time
-		toTarget->changeStat(statToChange, changeAmount);
+		changeToken = toTarget->changeStat(statToChange, changeAmount);
+		changeToken.push_back(std::to_string(times.at(n)));
+		changeToken.push_back(targets.at(n));
+		changeTokens.push_back(changeToken);
 	}
 	std::cout << util::divider() << std::endl;
+	return changeTokens;
 }
 
 std::string Ability::stringRep()
