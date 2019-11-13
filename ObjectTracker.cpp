@@ -107,7 +107,11 @@ void ObjectTracker::readAbilities(std::string fileName)
 		std::vector<std::string> aDTokens = util::split(abiData, ',');
 		int _id = std::stoi(aDTokens.at(0));
 		std::string _name = aDTokens.at(1);
-		Ability* a = new Ability(_id, _name);
+		bool _rollHit = false;
+		if (aDTokens.at(2) == "hit") {
+			_rollHit = true;
+		}
+		Ability* a = new Ability(_id, _name, _rollHit);
 
 		std::vector<std::string> eDTokens = util::split(effData, '%');
 		for (unsigned n = 0; n < eDTokens.size(); n++) {
@@ -122,4 +126,59 @@ void ObjectTracker::readAbilities(std::string fileName)
 
 		abilities.push_back(a);
 	}
+}
+
+Ability* ObjectTracker::getAbility(int id)
+{
+	if (id < 0 || id >= abilities.size()) {
+		return nullptr;
+	}
+	return abilities.at(id);
+}
+
+void ObjectTracker::readCharacters(std::string fileName)
+{
+	std::ifstream inputFile(filePath + fileName);
+	if (inputFile.good() == false) {
+		std::cout << "ERROR: Ability file could not be read." << std::endl;
+		return;
+	}
+
+	std::string tempData;
+	while (std::getline(inputFile, tempData)) {
+		std::vector<std::string> tokens = util::split(tempData, '#');
+		std::string charData = tokens.at(0);
+		std::string charAbiData = tokens.at(1);
+
+		std::vector<std::string> cDTokens = util::split(charData, ',');
+		int _id = std::stoi(cDTokens.at(0));
+		std::string _name = cDTokens.at(1);
+		int _hp_max = std::stoi(cDTokens.at(2));
+		int _mp_max = std::stoi(cDTokens.at(3));
+		int _mp_regen = std::stoi(cDTokens.at(4));
+		int _sp = std::stoi(cDTokens.at(5));
+		int _ac = std::stoi(cDTokens.at(6));
+		int invindex = std::stoi(cDTokens.at(7));
+		int equindex = std::stoi(cDTokens.at(8));
+		Container* _inventory = containers.at(invindex);
+		Container* _equipment = containers.at(equindex);
+		Character* c = new Character(_id, _name, _hp_max, _mp_max, _mp_regen, _sp, _ac, _inventory, _equipment);
+
+		std::vector<std::string> abiTokens = util::split(charAbiData, ',');
+		for (unsigned n = 0; n < abiTokens.size(); n++) {
+			int abiid = std::stoi(abiTokens.at(n));
+			Ability* a = abilities.at(abiid);
+			c->addAbility(a);
+		}
+
+		characters.push_back(c);
+	}
+}
+
+Character* ObjectTracker::getCharacter(int id)
+{
+	if (id < 0 || id >= characters.size()) {
+		return nullptr;
+	}
+	return characters.at(id);
 }

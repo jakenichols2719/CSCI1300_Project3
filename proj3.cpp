@@ -15,7 +15,7 @@ int main()
 	o.readItems("items.txt");
 	o.readContainers("containers.txt");
 	o.readAbilities("abilities.txt");
+	o.readCharacters("characters.txt");
 
-	Character* c = new Character(0, "Player", 10, 10, 50, 10, o.getContainer(1), o.getContainer(2));
-	Character* e = new Character(0, "Enemy", 10, 10, 50, 10, o.getContainer(3), o.getContainer(4));
+	std::cout << "This is a test change." << std::endl;
 }

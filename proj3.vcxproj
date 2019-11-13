@@ -162,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="abilities.txt" />
+    <Text Include="characters.txt" />
     <Text Include="items.txt" />
     <Text Include="containers.txt" />
   </ItemGroup>

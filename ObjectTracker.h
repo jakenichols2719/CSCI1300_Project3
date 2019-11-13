@@ -7,6 +7,7 @@
 #include "Item.h"
 #include "Container.h"
 #include "Ability.h"
+#include "Character.h"
 #include "util.h"
 
 class ObjectTracker
@@ -15,6 +16,8 @@ class ObjectTracker
 	std::vector<Item*> items;
 	std::vector<Container*> containers;
 	std::vector<Ability*> abilities;
+	std::vector<Character*> characters;
+
 public:
 	ObjectTracker(){};
 
@@ -28,8 +31,9 @@ public:
 
 	void readAbilities(std::string fileName);
 	Ability* getAbility(int id);
-	int getNumAbilities();
+	int getNumAbilities() { return abilities.size(); };
 
-	//void readCharacters(std::string fileName);
+	void readCharacters(std::string fileName);
+	Character* getCharacter(int id);
 };
 

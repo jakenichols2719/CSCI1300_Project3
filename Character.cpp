@@ -9,6 +9,14 @@ int Character::ac_()
 	return ac;
 }
 
+Ability* Character::getAbility(int index)
+{
+	if (index < 0 || index >= abilities.size()) {
+		return nullptr;
+	}
+	return abilities.at(index);
+}
+
 Item* Character::equippedWeapon_()
 {
 	Item* wep = nullptr;
@@ -86,25 +94,51 @@ int Character::unequip(int itemid)
 	}
 }
 
-bool Character::changeStat(std::string stat, int amount)
+int Character::changeStat(std::string stat, int amount)
 {
+	int initStat;
+	int finalStat;
+
 	if (stat == "hp") {
+		initStat = hp;
 		hp += amount;
 		if (hp > hp_max) {
 			hp = hp_max;
 		}
+		if (hp < 0) {
+			hp = 0;
+		}
+		finalStat = hp;
 	} else if (stat == "mp") {
+		initStat = mp;
 		mp += amount;
 		if (mp > mp_max) {
 			mp = mp_max;
 		}
+		if (mp < 0) {
+			mp = 0;
+		}
+		finalStat = mp;
 	} else if (stat == "sp") {
+		initStat = sp;
 		sp += amount;
+		if (sp > 100) {
+			sp = 100;
+		}
+		if (sp < 0) {
+			sp = 0;
+		}
+		finalStat = sp;
 	} else if(stat == "ac") {
+		initStat = ac;
 		ac += amount;
+		if (ac < 0) {
+			ac = 0;
+		}
+		finalStat = ac;
 	}
 	else {
-		return false;
+		return 0;
 	}
-	return true;
+	return finalStat-initStat;
 }
