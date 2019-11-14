@@ -1,4 +1,4 @@
 0,Punch,hit#other,hp,-,2d3,-1
-1,Evade,nohit#self,ac,+,4d1,1%self,sp,+,30d1,1%self,mp,-,20d1,-1
-2,Trance,nohit#self,ac,+,2d1,3%self,ac,+,2d1,1%self,sp,-,30d2,1%self,mp,-,10d1,-1
+1,Evade,nohit#self,ac,+,4d1,1%self,sp,+,30d1,1%self,mp,-,10d1,-1
+2,Trance,nohit#self,ac,+,2d1,3%self,ac,+,2d1,1%self,sp,-,30d2,1%self,mp,-,5d1,-1
 3,Vampiric Stab,hit#other,hp,-,wep,-1%self,hp,+,1d3,-1

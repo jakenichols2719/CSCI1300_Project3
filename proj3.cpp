@@ -62,6 +62,8 @@ void fight(Character* player, Character* enemy) {
 
 		//player turn
 		if (turnTimer[0] == 0) {
+			//display menu for ability selection
+			//get ability to use
 			std::vector<std::vector<std::string>> changeTokens = player->getAbility(2)->useAbility(player, enemy);
 
 			//iterate through change tokens
@@ -91,12 +93,44 @@ void fight(Character* player, Character* enemy) {
 			turnTimer[0] = 100 - player->sp_();
 		}
 
-		//check hp values
+		//check hp values : exit condition
 
 		//enemy turn
 		if (turnTimer[1] == 0) {
+			//pick random (?) move to use
+			std::vector<std::vector<std::string>> changeTokens = enemy->getAbility(0)->useAbility(enemy, player);
+
+			//iterate through change tokens
+			for (unsigned n = 0; n < changeTokens.size(); n++) {
+
+				//get data from token
+				std::vector<std::string> token = changeTokens.at(n);
+				std::string statChanged = token.at(0);
+				int amountChanged = std::stoi(token.at(1));
+				int timeChanged = std::stoi(token.at(2));
+				std::string changedFor = token.at(3);
+
+				//assign stat changes
+				if (changedFor == "self" && timeChanged > 0) {
+					e_statsChanged.push_back(statChanged);
+					e_amountsChanged.push_back(amountChanged);
+					e_timesChanged.push_back(timeChanged);
+				}
+				if (changedFor == "other" && timeChanged > 0) {
+					p_statsChanged.push_back(statChanged);
+					p_amountsChanged.push_back(amountChanged);
+					p_timesChanged.push_back(timeChanged);
+				}
+			}
+			//reset turn timer
+			turnTimer[1] = 100 - enemy->sp_();
+
+			fightRunning = false; // temp exit condition
 		}
 
-		//check hp values
+		//check hp values : exit condition
 	}
+	//test value checking
+	std::cout << turnTimer[0] << std::endl;
+	std::cout << turnTimer[1] << std::endl;
 }

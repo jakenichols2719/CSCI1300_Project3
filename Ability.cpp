@@ -13,6 +13,16 @@ Ability::Ability(int _id, std::string _name,
 	directions = _directions;
 	amounts = _amounts;
 	times = _times;
+
+	Die _mpCostDie;
+	int _mpCost = 0;
+	for (int n = 0; n < stats.size(); n++) {
+		if (stats.at(n) == "mp" && targets.at(n) == "self") {
+			_mpCostDie = Die(amounts.at(n));
+			_mpCost = _mpCostDie.roll(0);
+		}
+	}
+	mpCost = _mpCost;
 }
 
 bool Ability::addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time)
@@ -22,6 +32,17 @@ bool Ability::addEffect(std::string _target, std::string _targetstat, char _dire
 	directions.push_back(_direction);
 	amounts.push_back(_amount);
 	times.push_back(_time);
+
+	Die _mpCostDie;
+	int _mpCost = 0;
+	for (int n = 0; n < stats.size(); n++) {
+		if (stats.at(n) == "mp" && targets.at(n) == "self") {
+			_mpCostDie = Die(amounts.at(n));
+			_mpCost = _mpCostDie.roll(0);
+		}
+	}
+	mpCost = _mpCost;
+
 	return true;
 }
 
@@ -29,6 +50,11 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 {
 	std::vector<std::vector<std::string>> changeTokens; //list of change tokens for each stat change
 	std::cout << active->name_() + " used " + name + "!" << std::endl;
+
+	if (active->mp_() < mpCost) {
+		std::cout << "Not enough MP." << std::endl;
+		return changeTokens;
+	}
 
 	if (rollHit) {
 		int roll = Die::rollToHit(0);
@@ -39,8 +65,6 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 		}
 	}
 
-	//mp cost
-
 	for (unsigned n = 0; n < targets.size(); n++) {
 		std::vector<std::string> changeToken;// individual change token
 		Character* toTarget;
@@ -48,7 +72,7 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 		//set effect change target
 		if (targets.at(n) == "self") {
 			toTarget = active;
-			printEffect += "You ";
+			printEffect += active->name_() + " ";
 		}
 		else if (targets.at(n) == "other") {
 			toTarget = other;
