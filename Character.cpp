@@ -1,6 +1,12 @@
 #include "Character.h"
 #include <iostream>
 
+void Character::regen()
+{
+	changeStat("mp", mp_regen);
+	std::cout << "(" << name <<  " regenerates " << mp_regen << " mp.)" << std::endl;
+}
+
 int Character::ac_()
 {
 	if (equippedArmor_() != nullptr) {
@@ -15,6 +21,44 @@ Ability* Character::getAbility(int index)
 		return nullptr;
 	}
 	return abilities.at(index);
+}
+
+int* Character::printAbilityMenu()
+{
+	int* bounds = new int[2];
+	int n = 0;
+	for (n; n < abilities.size(); n++) {
+		std::cout << "[" << n+1 << "]: " << abilities.at(n)->name_() << std::endl;
+	}
+	bounds[0] = 1;
+	bounds[1] = n + 1;
+	return bounds;
+}
+
+int* Character::printInventoryMenu()
+{
+	std::cout << name << "'s Inventory" << std::endl;
+	int* bounds = new int[2];
+	int n = 0;
+	for (n; n < inventory.numItems_(); n++) {
+		std::cout << "[" << n + 1 << "]" << inventory.viewItem(n)->name_() << " (" << inventory.quantAt(n) << ")" << std::endl;
+	}
+	bounds[0] = 1;
+	bounds[1] = n + 1;
+	return bounds;
+}
+
+int* Character::printEquipmentMenu()
+{
+	std::cout << name << "'s Equipment" << std::endl;
+	int* bounds = new int[2];
+	int n = 0;
+	for (n; n < equipment.numItems_(); n++) {
+		std::cout << "[" << n + 1 << "]" << equipment.viewItem(n)->name_() << std::endl;
+	}
+	bounds[0] = 1;
+	bounds[1] = n + 1;
+	return bounds;
 }
 
 Item* Character::equippedWeapon_()
@@ -51,6 +95,8 @@ int Character::equip(int itemid)
 		}
 	}
 	if (toEquip == nullptr) {
+		std::cout << "You don't have that item in your inventory." << std::endl;
+		std::cout << "If you're seeing this, something is VERY wrong." << std::endl;
 		return -1;
 	}
 
@@ -58,15 +104,22 @@ int Character::equip(int itemid)
 	std::string eqType = toEquip->type_();
 	if (eqType == "wep") {
 		if (equippedWeapon_() != nullptr) {
+			std::cout << "You already have a weapon equipped. Unequip it first." << std::endl;
 			return -2;
 		}
 		inventory.moveItemTo(itemid, &equipment);
+		std::cout << "You equipped the " << toEquip->name_() << "." << std::endl;
 	}
 	if (eqType == "arm") {
 		if (equippedArmor_() != nullptr) {
+			std::cout << "You already have armor equipped. Unequip it first." << std::endl;
 			return -2;
 		}
 		inventory.moveItemTo(itemid, &equipment);
+		std::cout << "You equipped the " << toEquip->name_() << "." << std::endl;
+	}
+	if (eqType == "item") {
+		std::cout << "You can't equip this item.";
 	}
 	return 0;
 }
@@ -81,12 +134,14 @@ int Character::unequip(int itemid)
 		}
 	}
 	if (toUnEquip == nullptr) {
+		std::cout << "You cannot unequip that, on account of you not having it. This is a problem." << std::endl;
 		return -1;
 	}
 
 
 	bool check = equipment.moveItemTo(itemid, &inventory);
 	if (check) {
+		std::cout << "You unequipped the " << toUnEquip->name_() << "." << std::endl;
 		return 0;
 	}
 	else {
@@ -145,4 +200,43 @@ std::vector<std::string> Character::changeStat(std::string stat, int amount)
 	}
 	changeToken.push_back(std::to_string(finalStat - initStat));
 	return changeToken;
+}
+
+void Character::changeStat(std::string stat, int amount, bool noreturn)
+{
+	if (stat == "hp") {
+		hp += amount;
+		if (hp > hp_max) {
+			hp = hp_max;
+		}
+		if (hp < 0) {
+			hp = 0;
+		}
+	}
+	else if (stat == "mp") {
+		mp += amount;
+		if (mp > mp_max) {
+			mp = mp_max;
+		}
+		if (mp < 0) {
+			mp = 0;
+		}
+	}
+	else if (stat == "sp") {
+		sp += amount;
+		if (sp > 100) {
+			sp = 100;
+		}
+		if (sp < 0) {
+			sp = 0;
+		}
+	}
+	else if (stat == "ac") {
+		ac += amount;
+		if (ac < 0) {
+			ac = 0;
+		}
+	}
+	else {
+	}
 }

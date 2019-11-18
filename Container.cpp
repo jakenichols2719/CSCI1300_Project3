@@ -48,19 +48,6 @@ Item* Container::removeItem(int itemid)
 	
 	contained.erase(std::remove(contained.begin(), contained.end(), toRemove), contained.end());
 	quantities.erase(std::remove(quantities.begin(), quantities.end(), qValue), quantities.end());
-	/*Item* removed = nullptr;
-	std::vector<Item*>::iterator itemLoc = contained.begin();
-	std::vector<int>::iterator quantLoc = quantities.begin();
-	for (unsigned n = 0; n < contained.size(); n++) {
-		if (contained.at(n)->id_() == itemid) {
-			removed = contained.at(n);
-			itemLoc += n;
-			quantLoc += n;
-		}
-	}
-	contained.erase(itemLoc);
-	quantities.erase(quantLoc);
-	return removed;*/
 	return toRemove;
 }
 

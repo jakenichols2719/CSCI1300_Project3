@@ -53,6 +53,7 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 
 	if (active->mp_() < mpCost) {
 		std::cout << "Not enough MP." << std::endl;
+		std::cout << util::divider() << std::endl;
 		return changeTokens;
 	}
 
@@ -66,7 +67,7 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 	}
 
 	for (unsigned n = 0; n < targets.size(); n++) {
-		std::vector<std::string> changeToken;// individual change token
+		std::vector<std::string> changeToken; //individual change token
 		Character* toTarget;
 		std::string printEffect = "";
 		//set effect change target

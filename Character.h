@@ -29,6 +29,8 @@ public:
 	int hp_() { return hp; };
 	int mp_max_() { return mp_max; };
 	int mp_() { return mp; };
+	int mp_regen_() { return mp_regen; };
+	void regen();
 	int sp_() { return sp; };
 	int ac_();
 	Container* inventory_() { return &inventory; };
@@ -36,12 +38,16 @@ public:
 
 	void addAbility(Ability* toAdd) { abilities.push_back(toAdd); };
 	Ability* getAbility(int index);
+	int* printAbilityMenu();
+	int* printInventoryMenu();
+	int* printEquipmentMenu();
 	Item* equippedWeapon_();
 	Item* equippedArmor_();
 	int equip(int itemid);
 	int unequip(int itemid);
 
 	std::vector<std::string> changeStat(std::string stat, int amount);
+	void changeStat(std::string stat, int amount, bool noreturn);
 
 	Character instance() { return *this; };
 };

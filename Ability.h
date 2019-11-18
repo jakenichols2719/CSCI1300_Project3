@@ -28,6 +28,7 @@ public:
 	std::vector<std::vector<std::string>> useAbility(Character* active, Character* other);
 
 	std::string stringRep();
+	std::string name_() { return name; };
 	int mpCost_() { return mpCost; };
 };
 

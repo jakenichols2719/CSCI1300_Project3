@@ -18,6 +18,7 @@ public:
 	std::string type_() { return type; };
 	Character enemy_() { return enemy->instance(); };
 	Container loot_() { return loot->instance(); };
+	bool clear_() { return clear; };
 
 	void setClear() { clear = true; };
 };
