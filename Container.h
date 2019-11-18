@@ -23,9 +23,10 @@ public:
 	bool addItem(int id, int quant);
 	std::string peekItem(int index);
 	Item* viewItem(int index);
+	int quantAt(int index) { return quantities.at(index); };
 	Item* removeItem(int id);
 
-	int numItems_() { return contained.size(); };
+	int numItems_() { return (int)contained.size(); };
 
 	bool moveItemTo(int itemid, Container* newContainer);
 

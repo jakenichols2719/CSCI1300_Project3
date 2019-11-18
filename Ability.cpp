@@ -13,6 +13,16 @@ Ability::Ability(int _id, std::string _name,
 	directions = _directions;
 	amounts = _amounts;
 	times = _times;
+
+	Die _mpCostDie;
+	int _mpCost = 0;
+	for (int n = 0; n < stats.size(); n++) {
+		if (stats.at(n) == "mp" && targets.at(n) == "self") {
+			_mpCostDie = Die(amounts.at(n));
+			_mpCost = _mpCostDie.roll(0);
+		}
+	}
+	mpCost = _mpCost;
 }
 
 bool Ability::addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time)
@@ -22,28 +32,48 @@ bool Ability::addEffect(std::string _target, std::string _targetstat, char _dire
 	directions.push_back(_direction);
 	amounts.push_back(_amount);
 	times.push_back(_time);
+
+	Die _mpCostDie;
+	int _mpCost = 0;
+	for (int n = 0; n < stats.size(); n++) {
+		if (stats.at(n) == "mp" && targets.at(n) == "self") {
+			_mpCostDie = Die(amounts.at(n));
+			_mpCost = _mpCostDie.roll(0);
+		}
+	}
+	mpCost = _mpCost;
+
 	return true;
 }
 
-void Ability::useAbility(Character* active, Character* other)
+std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Character* other)
 {
+	std::vector<std::vector<std::string>> changeTokens; //list of change tokens for each stat change
 	std::cout << active->name_() + " used " + name + "!" << std::endl;
+
+	if (active->mp_() < mpCost) {
+		std::cout << "Not enough MP." << std::endl;
+		std::cout << util::divider() << std::endl;
+		return changeTokens;
+	}
 
 	if (rollHit) {
 		int roll = Die::rollToHit(0);
 		if (roll < other->ac_()) {
 			std::cout << "It missed." << std::endl;
 			std::cout << util::divider() << std::endl;
-			return;
+			return changeTokens;
 		}
 	}
 
 	for (unsigned n = 0; n < targets.size(); n++) {
+		std::vector<std::string> changeToken; //individual change token
 		Character* toTarget;
 		std::string printEffect = "";
+		//set effect change target
 		if (targets.at(n) == "self") {
 			toTarget = active;
-			printEffect += "You ";
+			printEffect += active->name_() + " ";
 		}
 		else if (targets.at(n) == "other") {
 			toTarget = other;
@@ -54,9 +84,12 @@ void Ability::useAbility(Character* active, Character* other)
 			printEffect += other->name_() + " ";
 		}
 
+		//set stat to change
 		std::string statToChange = stats.at(n);
+
 		Die changeDie;
 		int changeAmount;
+		//set change amount
 		if (amounts.at(n) == "wep") {
 			Item* activeWep = active->equippedWeapon_();
 			int bonus = 0;
@@ -74,6 +107,7 @@ void Ability::useAbility(Character* active, Character* other)
 			changeAmount = changeDie.roll(0);
 		}
 
+		//set direction
 		if (directions.at(n) == '-') {
 			changeAmount -= 2 * changeAmount;
 			printEffect += "lost ";
@@ -85,9 +119,13 @@ void Ability::useAbility(Character* active, Character* other)
 
 		std::cout << printEffect << std::endl;
 		//change stat: will eventually need reworking to factor in time
-		toTarget->changeStat(statToChange, changeAmount);
+		changeToken = toTarget->changeStat(statToChange, changeAmount);
+		changeToken.push_back(std::to_string(times.at(n)));
+		changeToken.push_back(targets.at(n));
+		changeTokens.push_back(changeToken);
 	}
 	std::cout << util::divider() << std::endl;
+	return changeTokens;
 }
 
 std::string Ability::stringRep()
