@@ -9,6 +9,7 @@ class Character
 private:
 	int id;
 	std::string name;
+	//basic stats
 	int hp_max;
 	int hp;
 	int mp_max;
@@ -16,8 +17,13 @@ private:
 	int mp_regen;
 	int sp;
 	int ac;
+	//battle stats
+	int str = 0;
+	int mag = 0;
+	//containers
 	Container inventory;
 	Container equipment;
+	//abilities
 	std::vector<Ability*> abilities;
 public:
 	Character(int _id, std::string _name, int _hp_max, int _mp_max, int _mp_regen, int _sp, int _ac,
@@ -33,11 +39,14 @@ public:
 	void regen();
 	int sp_() { return sp; };
 	int ac_();
+	int str_() { return str; };
+	int mag_() { return mag; };
 	Container* inventory_() { return &inventory; };
 	Container* equipment_() { return &equipment; };
 
 	void addAbility(Ability* toAdd) { abilities.push_back(toAdd); };
 	Ability* getAbility(int index);
+	int numAbilities_() { return (int)abilities.size(); };
 	int* printAbilityMenu();
 	int* printInventoryMenu();
 	int* printEquipmentMenu();

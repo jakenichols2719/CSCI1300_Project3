@@ -25,13 +25,14 @@ Ability::Ability(int _id, std::string _name,
 	mpCost = _mpCost;
 }
 
-bool Ability::addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time)
+bool Ability::addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time, std::string _bonus)
 {
 	targets.push_back(_target);
 	stats.push_back(_targetstat);
 	directions.push_back(_direction);
 	amounts.push_back(_amount);
 	times.push_back(_time);
+	bonuses.push_back(_bonus);
 
 	Die _mpCostDie;
 	int _mpCost = 0;
@@ -61,6 +62,10 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 		int roll = Die::rollToHit(0);
 		if (roll < other->ac_()) {
 			std::cout << "It missed." << std::endl;
+			active->changeStat("mp", -mpCost, true);
+			if (mpCost != 0) {
+				std::cout << active->name_() << " lost " << mpCost << " mp." << std::endl;
+			}
 			std::cout << util::divider() << std::endl;
 			return changeTokens;
 		}
@@ -95,16 +100,37 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 			int bonus = 0;
 			if (activeWep != nullptr) {
 				changeDie = activeWep->damageDie_();
-				bonus = activeWep->bonus_();
+				if (bonuses.at(n) == "none") {
+					bonus = activeWep->bonus_();
+				}
+				if (bonuses.at(n) == "str") {
+					bonus = active->str_() + activeWep->bonus_();
+				}
+				if (bonuses.at(n) == "mag") {
+					bonus = active->mag_() + activeWep->bonus_();
+				}
 			}
 			else {
 				changeDie.setFromString("1d2");
 			}
 			changeAmount = changeDie.roll(bonus);
+			if (changeAmount < 0) {
+				changeAmount = 0;
+			}
 		}
 		else {
 			changeDie.setFromString(amounts.at(n));
-			changeAmount = changeDie.roll(0);
+			int bonus = 0;
+			if (bonuses.at(n) == "none") {
+				bonus = 0;
+			}
+			if (bonuses.at(n) == "str") {
+				bonus = active->str_();
+			}
+			if (bonuses.at(n) == "mag") {
+				bonus = active->mag_();
+			}
+			changeAmount = changeDie.roll(bonus);
 		}
 
 		//set direction
@@ -115,10 +141,15 @@ std::vector<std::vector<std::string>> Ability::useAbility(Character* active, Cha
 		else {
 			printEffect += "gained ";
 		}
-		printEffect += std::to_string(abs(changeAmount)) + " " + statToChange + ".";
+		printEffect += std::to_string(abs(changeAmount)) + " " + statToChange;
+		if (times.at(n) == -1) {
+			printEffect += ".";
+		}
+		else {
+			printEffect += " for " + std::to_string(times.at(n)) + " turns.";
+		}
 
 		std::cout << printEffect << std::endl;
-		//change stat: will eventually need reworking to factor in time
 		changeToken = toTarget->changeStat(statToChange, changeAmount);
 		changeToken.push_back(std::to_string(times.at(n)));
 		changeToken.push_back(targets.at(n));
@@ -142,6 +173,9 @@ std::string Ability::stringRep()
 		rep += " to " + targets.at(n) + " " + stats.at(n);
 		if (times.at(n) != -1) {
 			rep += " for " + std::to_string(times.at(n)) + " turn(s)";
+		}
+		if (bonuses.at(n) != "none") {
+			rep += ", modified by " + bonuses.at(n);
 		}
 	}
 	if (rollHit) {

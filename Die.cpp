@@ -12,6 +12,7 @@ Die::Die(std::string fromString)
 	setFromString(fromString);
 }
 
+
 void Die::setFromString(std::string fromString)
 {
 	std::vector<std::string> splitInput = util::split(fromString, 'd');
