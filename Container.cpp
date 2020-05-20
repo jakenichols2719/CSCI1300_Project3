@@ -8,9 +8,22 @@ bool Container::addItem(int id, int quant)
 	if (contained.size() == maxItems) {
 		return false;
 	}
-	Item* toAdd = tracker->getItem(id);
-	contained.push_back(toAdd);
-	quantities.push_back(quant);
+	bool alreadyContained = false;
+	unsigned n;
+	for (n = 0; n < contained.size(); n++) {
+		if (contained.at(n)->id_() == id) {
+			alreadyContained = true;
+			break;
+		}
+	}
+	if (alreadyContained) {
+		quantities.at(n)++;
+	}
+	else {
+		Item* toAdd = tracker->getItem(id);
+		contained.push_back(toAdd);
+		quantities.push_back(quant);
+	}
 	return true;
 }
 
@@ -33,25 +46,36 @@ Item* Container::viewItem(int index)
 	return contained.at(index);
 }
 
-Item* Container::removeItem(int itemid)
+Item* Container::removeItem(int itemid, int quant)
 {
 	Item* toRemove = tracker->getItem(itemid);
-	int qValue = -1;
-	for (unsigned n = 0; n < contained.size(); n++) {
-		if (contained.at(n) == toRemove) {
-			qValue = quantities.at(n);
+	bool found = false;
+	unsigned n;
+	for (n = 0; n < contained.size(); n++) {
+		if (contained.at(n)->id_() == itemid) {
+			found = true;
+			break;
 		}
 	}
-	if (qValue == -1) {
+	if (found != true) {
 		return nullptr;
 	}
-	
-	contained.erase(std::remove(contained.begin(), contained.end(), toRemove), contained.end());
-	quantities.erase(std::remove(quantities.begin(), quantities.end(), qValue), quantities.end());
+
+	if (quant == -1) {
+		contained.erase(contained.begin() + n);
+		quantities.erase(quantities.begin() + n);
+	}
+	else {
+		quantities.at(n)--;
+		if (quantities.at(n) <= 0) {
+			contained.erase(contained.begin() + n);
+			quantities.erase(quantities.begin() + n);
+		}
+	}
 	return toRemove;
 }
 
-bool Container::moveItemTo(int itemid, Container* newContainer)
+bool Container::moveItemTo(int itemid, Container* newContainer, int quant)
 {
 	int itemIndex = -1;
 	for (unsigned n = 0; n < contained.size(); n++) {
@@ -63,12 +87,24 @@ bool Container::moveItemTo(int itemid, Container* newContainer)
 		return false;
 	}
 
-	bool check = newContainer->addItem(itemid, quantities.at(itemIndex));
-	if (check) {
-		removeItem(itemid);
-		return true;
+	if (quant == -1) {
+		bool check = newContainer->addItem(itemid, quantities.at(itemIndex));
+		if (check) {
+			removeItem(itemid, -1);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	else {
-		return false;
+		bool check = newContainer->addItem(itemid, quant);
+		if (check) {
+			removeItem(itemid, quant);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

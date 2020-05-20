@@ -18,13 +18,14 @@ private:
 	std::vector<char> directions; //+,-
 	std::vector<std::string> amounts; //Any die, wep
 	std::vector<int> times;
+	std::vector<std::string> bonuses;
 public:
 	Ability(int _id, std::string _name, bool _rollHit) : id(_id), name(_name), rollHit(_rollHit), mpCost(0) {};
 	Ability(int _id, std::string _name,
 		std::vector<std::string> _targets, std::vector<std::string> _stats,
 		std::vector<char> _directions, std::vector <std::string> _amounts, std::vector<int> times);
 
-	bool addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time);
+	bool addEffect(std::string _target, std::string _targetstat, char _direction, std::string _amount, int _time, std::string _bonus);
 	std::vector<std::vector<std::string>> useAbility(Character* active, Character* other);
 
 	std::string stringRep();

@@ -15,4 +15,3 @@ public:
 	static int rollToHit(int bonus);
 	std::string stringRep();
 };
-

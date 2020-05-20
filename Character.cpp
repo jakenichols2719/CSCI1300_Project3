@@ -3,7 +3,7 @@
 
 void Character::regen()
 {
-	changeStat("mp", mp_regen);
+	changeStat("mp", mp_regen, true);
 	std::cout << "(" << name <<  " regenerates " << mp_regen << " mp.)" << std::endl;
 }
 
@@ -107,7 +107,7 @@ int Character::equip(int itemid)
 			std::cout << "You already have a weapon equipped. Unequip it first." << std::endl;
 			return -2;
 		}
-		inventory.moveItemTo(itemid, &equipment);
+		inventory.moveItemTo(itemid, &equipment, 1);
 		std::cout << "You equipped the " << toEquip->name_() << "." << std::endl;
 	}
 	if (eqType == "arm") {
@@ -115,11 +115,11 @@ int Character::equip(int itemid)
 			std::cout << "You already have armor equipped. Unequip it first." << std::endl;
 			return -2;
 		}
-		inventory.moveItemTo(itemid, &equipment);
+		inventory.moveItemTo(itemid, &equipment, 1);
 		std::cout << "You equipped the " << toEquip->name_() << "." << std::endl;
 	}
 	if (eqType == "item") {
-		std::cout << "You can't equip this item.";
+		std::cout << "You can't equip this item." << std::endl;
 	}
 	return 0;
 }
@@ -139,7 +139,7 @@ int Character::unequip(int itemid)
 	}
 
 
-	bool check = equipment.moveItemTo(itemid, &inventory);
+	bool check = equipment.moveItemTo(itemid, &inventory, 1);
 	if (check) {
 		std::cout << "You unequipped the " << toUnEquip->name_() << "." << std::endl;
 		return 0;
@@ -166,7 +166,8 @@ std::vector<std::string> Character::changeStat(std::string stat, int amount)
 			hp = 0;
 		}
 		finalStat = hp;
-	} else if (stat == "mp") {
+	}
+	else if (stat == "mp") {
 		initStat = mp;
 		mp += amount;
 		if (mp > mp_max) {
@@ -176,7 +177,8 @@ std::vector<std::string> Character::changeStat(std::string stat, int amount)
 			mp = 0;
 		}
 		finalStat = mp;
-	} else if (stat == "sp") {
+	}
+	else if (stat == "sp") {
 		initStat = sp;
 		sp += amount;
 		if (sp > 100) {
@@ -186,13 +188,24 @@ std::vector<std::string> Character::changeStat(std::string stat, int amount)
 			sp = 0;
 		}
 		finalStat = sp;
-	} else if(stat == "ac") {
+	}
+	else if(stat == "ac") {
 		initStat = ac;
 		ac += amount;
 		if (ac < 0) {
 			ac = 0;
 		}
 		finalStat = ac;
+	}
+	else if (stat == "str") {
+		initStat = str;
+		str += amount;
+		finalStat = str;
+	}
+	else if (stat == "mag") {
+		initStat = mag;
+		mag += amount;
+		finalStat = mag;
 	}
 	else {
 		changeToken.push_back(std::to_string(0));
@@ -236,6 +249,12 @@ void Character::changeStat(std::string stat, int amount, bool noreturn)
 		if (ac < 0) {
 			ac = 0;
 		}
+	}
+	else if (stat == "str") {
+		str += amount;
+	}
+	else if (stat == "mag") {
+		mag += amount;
 	}
 	else {
 	}
