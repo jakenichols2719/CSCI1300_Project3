@@ -9,8 +9,12 @@
 #include "Map.h"
 
 void run(ObjectTracker* tracker);
-void fight(Character*, Character*);
+bool fight(Character*, Character*);
 int getInput(int* bounds);
+int ai_basic_move(Character* c, int* stage);
+int ai_cc_move(Character* boss, int* stage);
+int ai_th_move(Character* boss, int* stage);
+void endgame(int score);
 
 int main()
 {
@@ -21,17 +25,33 @@ int main()
 	o.readContainers("containers.txt");
 	o.readAbilities("abilities.txt");
 	o.readCharacters("characters.txt");
+	o.readMaps("maps.txt");
 
 	run(&o);
 }
 
 void run(ObjectTracker* tracker) {
 	//select character
-	Character player = tracker->getCharacter(0)->instance();
-	//set up map (temp)
-	Map floor(0, "Cave");
-	floor.addValidEnemy(2);
-	floor.addValidLoot(3);
+	std::cout << "Choose a character: " << std::endl;
+	std::cout << "[1]Mad Monk" << std::endl;
+	std::cout << "[2]Cultist" << std::endl;
+	std::cout << "[3]Runeblade" << std::endl;
+	int playerChoice = getInput(new int[2]{ 1,3 });
+	Character player = tracker->getCharacter(playerChoice-1)->instance();
+	//set up map
+	int mapChoice = rand() % 2;
+	Map floor = tracker->getMap(mapChoice)->instance();
+	//character-based loot options
+	switch (playerChoice - 1) {
+	case 0: floor.addValidLoot(13); break;//Monk
+	case 1: floor.addValidLoot(12); break;//Cultist
+	case 2: floor.addValidLoot(14); break;//Runeblade
+	}
+	//map boss
+	switch (floor.id_()) {
+	case 0: floor.addBoss(5); break;
+	case 1: floor.addBoss(8); break;
+	}
 	floor.fillRooms(tracker);
 
 	//loop variables
@@ -42,10 +62,11 @@ void run(ObjectTracker* tracker) {
 	while (running) {
 		floor.printMap(p_x, p_y);
 		std::cout << "Choose an action:" << std::endl;
-		int bounds[]{ 1,3 };
+		int bounds[]{ 1,4 };
 		std::cout << "[1]Move" << std::endl;
 		std::cout << "[2]View Equipment" << std::endl;
 		std::cout << "[3]View Inventory" << std::endl;
+		std::cout << "[4]View Abilities" << std::endl;
 		int input = getInput(bounds);
 		std::cout << util::divider() << std::endl;
 		//movement
@@ -92,23 +113,43 @@ void run(ObjectTracker* tracker) {
 			}
 			std::cout << util::divider() << std::endl;
 			Room* currentRoom = floor.getRoomAt(p_x, p_y);
+			//already cleared
 			if (currentRoom->clear_()) {
 				std::cout << "You've been here before... The room is empty." << std::endl;
+				std::cout << util::divider() << std::endl;
 			}
+			//boss fight
+			if (floor.roomsCleared_() == 15) {
+				//boss fight
+				std::cout << "A boss approaches..." << std::endl;
+				Character toFight = tracker->getCharacter(floor.boss_())->instance();
+				bool alive = fight(&player, &toFight);
+				if (alive) {
+					std::cout << "You have cleared the run! Congratulations!" << std::endl;
+					std::cout << util::divider() << std::endl;
+				}
+				break;
+			}
+			//not cleared
 			if (currentRoom->clear_() == false) {
 				std::string roomType = currentRoom->type_();
 				if (roomType == "empty") {
 					std::cout << "An eerie silence fills the room..." << std::endl;
 					player.changeStat("hp", 5, true);
-					std::cout << "You recover 3 hp." << std::endl;
+					std::cout << "You recover 5 hp." << std::endl;
 					floor.clearRoomAt(p_x, p_y);
 				}
 				if (roomType == "fight") {
 					Character toFight = currentRoom->enemy_();
-					fight(&player, &toFight);
-					player.changeStat("hp",10, true);
-					std::cout << "You recover 5 hp." << std::endl;
-					floor.clearRoomAt(p_x, p_y);
+					bool playerWon = fight(&player, &toFight);
+					if (playerWon) {
+						player.changeStat("hp", 5, true);
+						std::cout << "You recover 5 hp." << std::endl;
+						floor.clearRoomAt(p_x, p_y);
+					}
+					else {
+						break;
+					}
 				}
 				if (roomType == "loot") {
 					std::cout << "You found some loot!" << std::endl;
@@ -123,10 +164,10 @@ void run(ObjectTracker* tracker) {
 						std::cout << "[" << n + 1 << "]" << "Exit" << std::endl;
 						std::cout << "Take item: ";
 						int input = getInput(new int[2]{ 1,upperBound + 1 });
-						if (input <= upperBound) {
+						if (input >= 0 && input <= upperBound) {
 							Item* toTake = loot.viewItem(input - 1);
 							int idToTake = toTake->id_();
-							loot.moveItemTo(idToTake, player.inventory_());
+							loot.moveItemTo(idToTake, player.inventory_(), -1);
 							std::cout << "You took the " + toTake->name_() << std::endl;
 						}
 						else {
@@ -134,7 +175,10 @@ void run(ObjectTracker* tracker) {
 							break;
 						}
 					}
+					player.changeStat("hp", 5, true);
+					std::cout << "You recover 5 hp." << std::endl;
 				}
+				std::cout << util::divider() << std::endl;
 			}
 		}
 		//equipment menu
@@ -151,7 +195,7 @@ void run(ObjectTracker* tracker) {
 					std::cout << "Which item do you want to inspect?" << std::endl;
 					int input = getInput(eqBounds);
 					std::cout << util::divider() << std::endl;
-					std::cout << player.inventory_()->peekItem(input - 1) << std::endl;
+					std::cout << player.equipment_()->peekItem(input - 1) << std::endl;
 				}
 				if (input == 2) {
 					std::cout << "Which item do you want to unequip?" << std::endl;
@@ -195,10 +239,28 @@ void run(ObjectTracker* tracker) {
 				}
 			}
 		}
+		if (input == 4) {
+			for (int n = 0; n < player.numAbilities_(); n++) {
+				std::cout << player.getAbility(n)->stringRep() << std::endl;
+				std::cout << "---" << std::endl;
+			}
+			std::cout << util::divider() << std::endl;
+		}
 	}
+	//game end process
+	int totalItemValue = 0;
+	for (int n = 0; n < player.inventory_()->numItems_(); n++) {
+		int tempVal = player.inventory_()->viewItem(n)->value_();
+		totalItemValue += tempVal;
+	}
+	for (int n = 0; n < player.equipment_()->numItems_(); n++) {
+		int tempVal = player.equipment_()->viewItem(n)->value_();
+		totalItemValue += tempVal;
+	}
+	endgame(totalItemValue);
 }
 
-void fight(Character* player, Character* enemy) {
+bool fight(Character* player, Character* enemy) {
 	//fight introduction
 	std::cout << "FIGHT: " << player->name_() << " VS. " << enemy->name_() << std::endl;
 	std::cout << util::divider() << std::endl;
@@ -216,6 +278,8 @@ void fight(Character* player, Character* enemy) {
 	std::vector<std::string> e_statsChanged;
 	std::vector<int> e_amountsChanged;
 	std::vector<int> e_timesChanged;
+	//enemy stage tracking
+	int fightStage = -1;
 	
 	bool fightRunning = true;
 	//fight loop
@@ -236,7 +300,7 @@ void fight(Character* player, Character* enemy) {
 					p_statsChanged.erase(p_statsChanged.begin() + n);
 					p_amountsChanged.erase(p_amountsChanged.begin() + n);
 					p_timesChanged.erase(p_timesChanged.begin() + n);
-					player->changeStat(s, -i);
+					player->changeStat(s, -i, true);
 					std::cout << "(Your " << s << " returned to normal.) [" << -i << "]" << std::endl;
 				}
 				else {
@@ -293,6 +357,7 @@ void fight(Character* player, Character* enemy) {
 		if (player->hp_() == 0) {
 			std::cout << "The light fades..." << std::endl;
 			fightRunning = false;
+			return false;
 			break;
 		}
 		if (enemy->hp_() == 0) {
@@ -313,7 +378,7 @@ void fight(Character* player, Character* enemy) {
 					e_statsChanged.erase(e_statsChanged.begin() + n);
 					e_amountsChanged.erase(e_amountsChanged.begin() + n);
 					e_timesChanged.erase(e_timesChanged.begin() + n);
-					enemy->changeStat(s, -i);
+					enemy->changeStat(s, -i, true);
 				}
 				else {
 					n++;
@@ -321,7 +386,17 @@ void fight(Character* player, Character* enemy) {
 			}
 			enemy->regen();
 			//pick random (?) move to use
-			std::vector<std::vector<std::string>> changeTokens = enemy->getAbility(0)->useAbility(enemy, player);
+			int moveChoice = 0;
+			if (enemy->id_() == 5) {
+				moveChoice = ai_cc_move(enemy, &fightStage);
+			}
+			else if (enemy->id_() == 8) {
+				moveChoice = ai_th_move(enemy, &fightStage);
+			}
+			else {
+				moveChoice = ai_basic_move(enemy, &fightStage);
+			}
+			std::vector<std::vector<std::string>> changeTokens = enemy->getAbility(moveChoice)->useAbility(enemy, player);
 
 			//iterate through change tokens
 			for (unsigned n = 0; n < changeTokens.size(); n++) {
@@ -353,6 +428,7 @@ void fight(Character* player, Character* enemy) {
 		if (player->hp_() == 0) {
 			std::cout << "The light fades..." << std::endl;
 			fightRunning = false;
+			return false;
 			break;
 		}
 		if (enemy->hp_() == 0) {
@@ -361,6 +437,18 @@ void fight(Character* player, Character* enemy) {
 			break;
 		}
 	}
+	//return stats to normal
+	unsigned n = 0;
+	while (n < p_statsChanged.size()) {
+		std::string s = p_statsChanged.at(n);
+		int i = p_amountsChanged.at(n);
+		p_statsChanged.erase(p_statsChanged.begin() + n);
+		p_amountsChanged.erase(p_amountsChanged.begin() + n);
+		p_timesChanged.erase(p_timesChanged.begin() + n);
+		player->changeStat(s, -i, true);
+		std::cout << "(Your " << s << " returned to normal.) [" << -i << "]" << std::endl;
+	}
+	return true;
 }
 
 int getInput(int* bounds) {
@@ -370,17 +458,158 @@ int getInput(int* bounds) {
 		std::string temp;
 		bool isInt = true;
 		std::getline(std::cin, temp);
-		for (size_t n = 0; n < temp.size(); n++) {
-			if (temp[n] < 48 || temp[n] > 57) {
-				isInt = false;
-			}
+		if (temp == "") {
+			valid = false;
 		}
-		if (isInt) {
-			input = std::stoi(temp);
-			if (input >= bounds[0] && input <= bounds[1]) {
-				valid = true;
+		else {
+			for (size_t n = 0; n < temp.size(); n++) {
+				if (temp[n] < 48 || temp[n] > 57) {
+					isInt = false;
+				}
+			}
+			if (isInt) {
+				input = std::stoi(temp);
+				if (input >= bounds[0] && input <= bounds[1]) {
+					valid = true;
+				}
 			}
 		}
 	}
 	return input;
+}
+
+int ai_basic_move(Character* c, int* stage)
+{
+	int n = 0;
+	while (true) {
+		Ability* a = c->getAbility(n);
+		if (a == nullptr) {
+			break;
+		}
+		n++;
+	}
+	int moveChoice = rand() % n;
+	return moveChoice;
+}
+
+int ai_cc_move(Character* boss, int* stage)
+{
+	if (*stage == -1) {
+		std::cout << "As you approach the massive Jet Zombie, it lets out a massive roar." << std::endl;
+		*stage += 1;
+		return 0;
+	}
+	if (*stage == 0) {
+		int choice = (rand() % 2) + 1;
+		if (boss->hp_() <= 40) {
+			*stage += 1;
+		}
+		return choice;
+	}
+	if (*stage == 1) {
+		std::cout << "Whatever this thing is, you've made it mad. It bellows as it prepares to rush you." << std::endl;
+		*stage += 1;
+		return 0;
+	}
+	if (*stage == 2) {
+		int temp = rand() % 2;
+		if (boss->hp_() <= 15) {
+			*stage += 1;
+		}
+		if (temp == 0) return 1;
+		if (temp == 1) return 3;
+	}
+	if (*stage == 3) {
+		std::cout << "You look on in horror az the zombie begins to fall apart. A glow comes from the engine embedded in its chest...";
+		*stage += 1;
+		return 4;
+	}
+	if (*stage == 4) {
+		return 5;
+	}
+	return 0;
+}
+
+int ai_th_move(Character* boss, int* stage)
+{
+	if (*stage == -1) {
+		std::cout << "The building around you begins to rumble. It occurs to you that, possibly, you made a mistake in coming here." << std::endl;
+		std::cout << "As you have this thought, swamp water floods the room." << std::endl;
+		*stage += 1;
+		return 5;
+	}
+	if (*stage == 0) {
+		int temp = rand() % 2;
+		if (boss->hp_() <= 25) {
+			*stage += 1;
+		}
+		if (temp == 0) return 0;
+		if (temp == 1) return 2;
+	}
+	if (*stage == 1) {
+		std::cout << "The Herbarium quakes as you do away with the vicious plants. Suddenly, the overgrowth seems to resurge." << std::endl;
+		*stage += 1;
+		return 6;
+	}
+	if (*stage == 2) {
+		int temp = rand() % 3;
+		if (boss->hp_() <= 15) {
+			*stage += 1;
+		}
+		if (temp == 0) return 1;
+		if (temp == 1) return 3;
+		if (temp == 2) return 4;
+	}
+	return 0;
+}
+
+void endgame(int score) {
+	std::cout << "Score: " << score;
+	std::string initials[5];
+	int highScores[5];
+	std::ifstream inputFile("highscores.txt");
+	std::string tempData;
+	//read scores
+	for (int n = 0; n < 5; n++) {
+		std::getline(inputFile, tempData);
+		std::vector<std::string> tokens = util::split(tempData, ',');
+		initials[n] = tokens.at(0);
+		highScores[n] = std::stoi(tokens.at(1));
+	}
+	//check high score
+	int scoreIndex = -1;
+	for (int n = 0; n < 5; n++) {
+		if (score > highScores[n]) {
+			scoreIndex = n;
+			break;
+		}
+	}
+	//enter new initials
+	if (scoreIndex != -1) {
+		std::string newInitials;
+		std::cout << "Enter your initials (3): " << std::endl;
+		while (true) {
+			std::cin >> newInitials;
+			if (newInitials.size() == 3) {
+				break;
+			}
+			else {
+				std::cout << "Please enter valid initials." << std::endl;
+			}
+		}
+		initials[scoreIndex] = newInitials;
+		highScores[scoreIndex] = score;
+	}
+	//print (new) high scores
+	std::cout << "HIGH SCORES" << std::endl;
+	for (int n = 0; n < 5; n++) {
+		std::cout << n+1 << " (" << initials[n] << "): " << highScores[n] << std::endl;;
+	}
+	inputFile.close();
+
+	std::ofstream outputFile("highscores.txt", std::ofstream::out | std::ofstream::trunc);
+	for (int n = 0; n < 5; n++) {
+		outputFile << initials[n] + "," + std::to_string(highScores[n]) << std::endl;
+	}
+	outputFile.close();
 }

@@ -59,6 +59,12 @@
     <Text Include="characters.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="maps.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="highscores.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Item.h">

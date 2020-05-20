@@ -1,4 +1,26 @@
-0,Punch,hit#other,hp,-,2d3,-1
-1,Evade,nohit#self,ac,+,6d1,1%self,sp,+,30d1,1%self,mp,-,10d1,-1
-2,Trance,nohit#self,ac,+,2d1,3%self,ac,+,2d1,1%self,sp,-,30d2,1%self,mp,-,5d1,-1
-3,Vampiric Stab,hit#other,hp,-,wep,-1%self,hp,+,1d3,-1
+0,Punch,hit#other,hp,-,2d4,-1,str
+1,Evade,nohit#self,ac,+,6d1,1,none%self,sp,+,20d1,1,none%self,mp,-,10d1,-1,none
+2,Pummel,hit#other,hp,-,1d4,-1,str%self,sp,+,10d1,1,none%self,mp,-,5d1,-1,none
+3,Trance,nohit#self,ac,+,2d1,3,none%self,str,+,2d1,3,none%self,ac,+,2d1,1,none%self,sp,-,35d2,1,none%self,mp,-,5d1,-1,none
+4,Vampiric Stab,hit#other,hp,-,wep,-1,str%self,hp,+,1d2,-1,none
+5,Eldritch Healing,nohit#self,hp,-,1d6,-1,none%self,hp,+,1d12,-1,mag
+6,Red Lightning,nohit#self,hp,-,1d8,-1,none%other,hp,-,1d12,-1,mag
+7,Blood for Power,nohit#self,hp,-,1d10,-1,none%self,mag,+,3d1,4,none
+8,Jab,hit#other,hp,-,wep,-1,str
+9,Twice-Cut,hit#other,hp,-,wep,-1,str%other,hp,-,wep,-1,mag%self,mp,-,10d1,-1,none
+10,Chaotic Rune,nohit#self,str,+,2d3,4,none%self,str,-,1d3,4,none%self,mag,+,2d3,4,none%self,mag,-,1d3,4,none%self,mp,-,8d1,-1,none
+11,Runeshield,nohit#self,mag,-,2d1,4,none%self,ac,+,2d1,4,none%self,mp,-,8d1,-1,none
+12,Vicejaw,hit#other,hp,-,1d8,-1,str
+13,Roar,nohit#other,str,-,2d1,5,none%other,sp,-,20d1,5,none%self,str,+,1d1,10,none
+14,Jet Punch,hit#other,hp,-,1d6,-1,str%self,sp,+,5d1,5,none
+15,Accelerate,nohit#self,sp,+,5d1,-1,none
+16,Rush,hit#other,hp,-,1d3,-1,str%other,hp,-,1d3,-1,str%other,hp,-,1d3,-1,str
+17,Engine Overheat,nohit#self,sp,-,50d1,-1,none%other,hp,-,2d10,-1,none
+18,Unstable Rush,hit#other,hp,-,1d4,-1,str%self,hp,-,1d6,-1,str%other,hp,-,1d4,-1,str%self,hp,-,1d6,-1,str
+19,Enfeebling Spores,nohit#other,hp,-,1d3,-1,none%other,sp,-,2d6,3,none%other,str,-,1d1,2,none
+20,Toxic Spores,nohit#other,hp,-,2d3,-1,none
+21,Synthesize,nohit#self,hp,+,1d5,-1,none%self,str,+,1d2,5,none
+22,Entangle,hit#other,hp,-,1d3,-1,str%other,sp,-,3d4,3,str
+23,Lash Out,hit#other,hp,-,1d6,-1,str
+24,Swamp Descent,nohit#other,sp,-,30d1,10,none%other,hp,-,2d6,-1,none
+25,Swamp is On,nohit#self,sp,+,20d1,10,none%self,str,+,3d1,10,none

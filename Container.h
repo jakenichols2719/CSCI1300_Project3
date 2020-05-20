@@ -24,11 +24,11 @@ public:
 	std::string peekItem(int index);
 	Item* viewItem(int index);
 	int quantAt(int index) { return quantities.at(index); };
-	Item* removeItem(int id);
+	Item* removeItem(int id, int quant);
 
 	int numItems_() { return (int)contained.size(); };
 
-	bool moveItemTo(int itemid, Container* newContainer);
+	bool moveItemTo(int itemid, Container* newContainer, int quant);
 
 	Container instance() { return *this; };
 };
